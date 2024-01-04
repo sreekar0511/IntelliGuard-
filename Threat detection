@@ -1,0 +1,32 @@
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Sample threat data
+threat_data = [
+    {'data': 'GET /index.php HTTP/1.1', 'label': 'dos'},
+    {'data': 'Kindly purchase $500 gift cards', 'label': 'spoofing'},
+    {'data': "OR 1=1--", 'label': 'sql_injection'},
+    {'data': '<script>alert("XSS")</script>', 'label': 'xss'},
+    {'data': 'http://fakepaypal.com', 'label': 'phishing'},
+    {'data': '8743c1d2746374b97c9e1d27b369c', 'label': 'malware'},
+    {'data': 'Hi I am calling from IT...', 'label': 'social engineering'}
+]
+
+df = pd.DataFrame(threat_data)
+
+# Prepare feature vectors
+vectorizer = TfidfVectorizer()
+X_vect = vectorizer.fit_transform(df['data'])
+
+# Train model
+model = LogisticRegression()
+model.fit(X_vect, df['label'])
+
+# Predict on new data
+new_threat = {'data': 'GET /download.php?file=virus.exe', 'label': 'unknown'}
+new_data_vect = vectorizer.transform([new_threat['data']])
+prediction = model.predict(new_data_vect)[0]
+
+print("Predicted threat:", prediction)
